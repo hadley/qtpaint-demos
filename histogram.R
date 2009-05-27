@@ -2,7 +2,7 @@
 
 ## x11(width = 2, height = 2)
 
-library(qvizexpt)
+library(qtpaint)
 
 ## histo <- qhistogram(rnorm(100), breaks = NULL)
 

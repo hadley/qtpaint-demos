@@ -1,5 +1,5 @@
 
-library(qvizexpt)
+library(qtpaint)
 
 myscene <- qvScene()
 

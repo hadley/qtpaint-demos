@@ -1,5 +1,5 @@
 ## tests/demonstrations for the interactive canvas
-library(qvizexpt)
+library(qtpaint)
 
 circle <- qvPathCircle(0, 0, 5)
 
@@ -31,7 +31,7 @@ margin <- 5
 adjust <- c(margin, -margin)
 
 ## axes <- function(item, painter, exposed) {
-##   view <- qvizexpt:::qvPaintingView(item) # include in 'context'?
+##   view <- qtpaint:::qvPaintingView(item) # include in 'context'?
 ##   qvFont(painter) <- qv.font(pointsize=12)
 ##   pos <- qvMap(qvDeviceMatrix(item, view), qvBoundingRect(view) + adjust)
 ##   qvText(painter, colnames(df)[1], pos[2], pos[4], "right", "bottom")
@@ -89,7 +89,7 @@ print(view2)
 ## for (i in 1:100) {
 ##   x <- x + 1
 ##   y <- y + 1
-##   qvizexpt:::qvUpdate(scene)
+##   qtpaint:::qvUpdate(scene)
 ## }
 
 ## text alignment fun

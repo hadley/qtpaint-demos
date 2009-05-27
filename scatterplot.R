@@ -1,7 +1,7 @@
 
 ## x11(width = 2, height = 2)
 
-library(qvizexpt)
+library(qtpaint)
 ## dens <- qv.densityplot(rnorm(100), main = "Normal variates")
 ## rm(dens)
 ## gc()
