@@ -3,13 +3,13 @@ library(qtpaint)
 
 circle <- qvPathCircle(0, 0, 5)
 
-## n <- 1000000
-## x <- rnorm(n, 50, 25)
-## y <- rnorm(n, 50, 25)
-## df <- data.frame(X = x, Y = y)
+n <- 10000
+x <- rnorm(n, 50, 25)
+y <- rnorm(n, 50, 25)
+df <- data.frame(X = x, Y = y)
 
 data(mtcars)
-df <- mtcars[,c("mpg", "hp")]
+##df <- mtcars[,c("mpg", "hp")]
 
 ##data(iris)
 ##df <- iris
@@ -21,7 +21,7 @@ scatterplot <- function(item, painter, exposed) {
 
 labeled <- rep(FALSE, nrow(df))
 labeler <- function(item, painter, exposed) {
-  mat <- qvDeviceMatrix(item, TRUE)
+  mat <- qvDeviceMatrix(item, inverted=TRUE)
   off <- qvMap(mat, c(5, 5)) - qvMap(mat, c(0, 0))
   df <- df[labeled,]
   qvText(painter, rownames(df), df[,1]+off[1], df[,2]+off[2], "left", "bottom")
@@ -78,18 +78,17 @@ qvCacheMode(labels) <- "none"
 qvSetLimits(labels, qvLimits(points))
 ##bounds <- qvLayer(boundsPainter)
 ##qvAddGraphicsWidget(root, bounds, 1, 1)
-view <- qvViewWidget(scene = scene)
+view <- qvViewWidget(scene = scene, opengl = FALSE)
 overlay <- qvOverlay(view)
-axesOverlay <- qvLayer(axes, overlay)
+axesOverlay <- qvLayer(overlay, axes)
 print(view)
 
-view2 <- qvViewWidget(scene = scene)
-print(view2)
+##view2 <- qvViewWidget(scene = scene)
+##print(view2)
 
 ## for (i in 1:100) {
-##   x <- x + 1
-##   y <- y + 1
-##   qtpaint:::qvUpdate(scene)
+##    df <- df + 0.01
+##    qtpaint:::qvUpdate(scene)
 ## }
 
 ## text alignment fun
