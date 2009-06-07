@@ -21,10 +21,11 @@ redraw <- function(item, painter, exposed) {
   circle <- qvPathCircle(0, 0, max(min(view_size(item) / 100), 1))
   
   qvStrokeColor(painter) <- NA
-  for(col in unique(cols)) {
-    qvFillColor(painter) <- col
-    qvGlyph(painter, circle, data[cols == col,1], data[cols == col,2])
-  }
+  qvGlyph(painter, circle, data[, 1], data[,2], fill = cols)
+  # for(col in unique(cols)) {
+  #   qvFillColor(painter) <- col
+  #   qvGlyph(painter, circle, data[cols == col,1], data[cols == col,2])
+  # }
 }
 
 scene <- qvScene()

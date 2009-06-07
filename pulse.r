@@ -2,7 +2,6 @@
 # source("~/Documents/cranvas/qtpaint/demo/pulse.r")
 library(qtpaint)
 library(ggplot2)
-l(tourr)
 
 data <- rescaler(flea[1:2], "range")
 
@@ -16,11 +15,13 @@ transp_dir <- 1
 
 redraw <- function(item, painter, exposed) {
   circle <- qvPathCircle(0, 0, max(min(view_size(item) / 20), 1))
-  
+  colours <- hcl(240, l = 100 * transp_cur)
+
   qvStrokeColor(painter) <- NA
+  # qvGlyph(painter, circle, data[,1], data[,2], fill = colours)
+  
   for(i in 1:nrow(data)) {
-    # qvFillColor(painter) <- hcl(transp_cur[i] * 500 + 60, l = 50)
-    qvFillColor(painter) <- hcl(240, l = 100 * transp_cur[i])
+    qvFillColor(painter) <- colours[i]
     qvGlyph(painter, circle, data[i,1], data[i,2])
   }
 }
@@ -36,11 +37,11 @@ overlay <- qvOverlay(view)
 
 print(view)
 
-for(i in 1:50) {
+print(system.time({for(i in 1:50) {
   transp_dir <<- transp_dir * 
     ifelse(transp_cur > 0.9 | transp_cur < 0.6, -1, 1)
   transp_cur <<- transp_cur + transp_delta * transp_dir
   
   qvUpdate(scene)
   Sys.sleep(1/33)
-}
+}}))
