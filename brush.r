@@ -29,7 +29,6 @@ scatterplot <- function(item, painter, exposed) {
 
   qvFillColor(painter) <- alpha("blue", 1/10)
   qvGlyph(painter, circle, df[pt_underbrush,1], df[pt_underbrush,2])
-
 }
 
 # Draw a brush
@@ -43,12 +42,21 @@ brushrect <- function(item, painter, exposed) {
              c(bbase[1], bbase[1]+w, bbase[1]+w, bbase[1], bbase[1]),
              c(bbase[2], bbase[2], bbase[2]-w, bbase[2]-w, bbase[2]))
 }  
-#
+
+moveBrush <- function(event) {
+  pt <- event$screenPos
+  mat <- qvDeviceMatrix(event$item, event$view)
+  pt <- qvMap(mat, pt)
+  bbase <<- pt
+  #print (bbase)
+  qvUpdate(scene)
+}
+
 
 scene <- qvScene()
 root <- qvLayer(scene)
 
-points <- qvLayer(root, scatterplot)
+points <- qvLayer(root, scatterplot, mouseMove = moveBrush)
 qvSetLimits(points, range(df[,1]), range(df[,2]))
 
 brush <- qvLayer(root, brushrect)
@@ -63,9 +71,9 @@ overlay <- qvOverlay(view)
 print(view)
 
 # Move the brush around
-for(i in 1:100) {
-    bbase[1] = bbase[1] + runif(1, -.2, +.2)    
-    bbase[2] = bbase[2] + runif(1, -.2, +.2)
-    qvUpdate(scene)
-    Sys.sleep(1 / 66)
-}
+#for(i in 1:100) {
+#    bbase[1] = bbase[1] + runif(1, -.2, +.2)    
+#    bbase[2] = bbase[2] + runif(1, -.2, +.2)
+#    qvUpdate(scene)
+#    Sys.sleep(1 / 66)
+#}
