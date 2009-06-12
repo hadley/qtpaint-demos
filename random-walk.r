@@ -15,7 +15,7 @@ view_size <- function(item) {
 scatterplot <- function(item, painter, exposed) {
   # print(min(view_size(item)) / 100)
   circle <- qvPathCircle(0, 0, min(view_size(item)) / 100)
-  qvFillColor(painter) <- alpha("red", 1/10)
+  qvFillColor(painter) <- alpha("red", 1/20)
   qvStrokeColor(painter) <- NA
   qvGlyph(painter, circle, df[,1], df[,2])
 }
@@ -33,7 +33,7 @@ print(view)
 
 
 print(system.time({
-  for(i in 1:100) {
+  for(i in 1:10) {
     df$X <- df$X + runif(nrow(df), -0.01, 0.01)
     qvUpdate(scene)
     Sys.sleep(1 / 66)

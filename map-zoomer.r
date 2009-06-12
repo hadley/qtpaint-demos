@@ -15,9 +15,9 @@ scatterplot <- function(layer, painter, exposed) {
   }
   
   qvAntialias(painter) <- FALSE
-  qvStrokeColor(painter) <- NA
+  qvStrokeColor(painter) <- "black"
   qvFillColor(painter) <- "black"
-  qvGlyph(painter, square, df$x, df$y)
+  qvPoint(painter, df$x, df$y)
 }
 
 pos <- NULL

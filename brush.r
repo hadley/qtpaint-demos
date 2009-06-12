@@ -12,9 +12,6 @@ underbrush <- function(df, bbrush) {
     df[,2] <= bbrush[2] & df[,2] >= bbrush[2] - h
 }
 
-pix_to_data <- function(data, canvas) {}
-data_to_pix <- function(data, canvas) {}
-
 view_size <- function(item) {
   qvBoundingRect(qtpaint:::qvPaintingView(item))[2, ]
 }
