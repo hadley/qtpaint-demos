@@ -1,20 +1,33 @@
 # source("~/Documents/cranvas/demos/scatterplot.r")
 library(qtpaint)
 
-n <- 10000
+n <- 50000
 x <- rnorm(n, 50, 25)
 y <- rnorm(n, 50, 25)
 df <- data.frame(X = x, Y = y)
 
-circle <- qvPathCircle(0, 0, 3)
+size <- 3
+alpha <- 1
+
 render_plot <- function(layer, canvas, exposed) {
-  qvFillColor(canvas) <- "black"
+  circle <- qvPathCircle(0, 0, size)
+
+  qvFillColor(canvas) <- ggplot2::alpha("blue", alpha)
   qvStrokeColor(canvas) <- NA
   qvGlyph(canvas, circle, df[,1], df[,2])
 }
 
 handle_keys <- function(event) {
-  print(str(event))
+  if (event$key == "16777235") {
+    size <<- size + 1
+  } else if (event$key == "16777237") {
+    size <<- max(size - 1, 1)
+  } else if (event$key == "16777234") {
+    alpha <<- max(alpha - 0.05, 0.05)
+  } else if (event$key == "16777236") {
+    alpha <<- min(alpha + 0.05, 1)
+  }
+  qvUpdate(scene)
 }
 
 scene <- qvScene()
