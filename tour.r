@@ -1,5 +1,5 @@
 # l(qtpaint)
-# source("~/Documents/cranvas/qtpaint/demo/tour.r")
+# source("~/Documents/cranvas/demos/tour.r")
 library(qtpaint)
 library(ggplot2)
 l(tourr)

@@ -1,4 +1,4 @@
-# l(qtpaint); source("~/Documents/cranvas/qtpaint/demo/map-zoomer.r")
+# source("~/Documents/cranvas/demos/map-zoomer.r")
 library(qtpaint)
 library(ggplot2)
 

@@ -1,4 +1,4 @@
-# l(qtpaint); source("~/Documents/cranvas/qtpaint/demo/pixbin.r")
+# source("~/Documents/cranvas/demos/pixbin.r")
 library(qtpaint)
 library(ggplot2)
 

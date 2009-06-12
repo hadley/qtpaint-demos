@@ -1,5 +1,5 @@
 # l(qtpaint)
-# source("~/Documents/cranvas/qtpaint/demo/alpha.r")
+# source("~/Documents/cranvas/demos/alpha.r")
 library(qtpaint)
 library(ggplot2)
 
