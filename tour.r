@@ -22,10 +22,6 @@ redraw <- function(item, painter, exposed) {
   
   qvStrokeColor(painter) <- NA
   qvGlyph(painter, circle, data[, 1], data[,2], fill = cols)
-  # for(col in unique(cols)) {
-  #   qvFillColor(painter) <- col
-  #   qvGlyph(painter, circle, data[cols == col,1], data[cols == col,2])
-  # }
 }
 
 scene <- qvScene()
@@ -35,8 +31,6 @@ points <- qvLayer(root, redraw)
 qvSetLimits(points, c(-3, 3), c(-3, 3))
 
 view <- qvViewWidget(scene = scene, opengl = FALSE)
-overlay <- qvOverlay(view)
-
 print(view)
 
 
