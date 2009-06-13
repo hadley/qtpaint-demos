@@ -1,6 +1,7 @@
-# source("~/Documents/cranvas/demos/map-zoomer.r")
+# source("~/Documents/cranvas/demos/map-zoomer.r", chdir=T)
 library(qtpaint)
 library(ggplot2)
+source("keys.r")
 
 if (!exists("geo")) {
   load("~/Documents/data/08-housing-ca/geo.rdata")  
@@ -9,48 +10,34 @@ df <- data.frame(y = geo$lat * 100, x = geo$long * 100)
 df <- df[complete.cases(df), ]
 
 scatterplot <- function(layer, painter, exposed) {
-  square <- qvPathRect(0, 0, 1, 1)
-  if (zoom_level > 10) {
-    square <- qvPathCircle(0, 0, 2)    
-  }
-  
   qvAntialias(painter) <- FALSE
   qvStrokeColor(painter) <- "black"
   qvFillColor(painter) <- "black"
-  qvPoint(painter, df$x, df$y)
-}
-
-pos <- NULL
-
-zoom_level <- 1
-xrng <- diff(range(df$x, na.rm=T)) / 2
-yrng <- diff(range(df$y, na.rm=T)) / 2
-
-mouse_zoom <- function(event) {
-  if (event$modifiers == 0) {
-    zoom_in()
+  if (zoom_level > 10) {
+    circle <- qvPathCircle(0, 0, 2)    
+    qvGlyph(painter, circle, df$x, df$y)    
   } else {
-    zoom_out()
+    qvPoint(painter, df$x, df$y)    
   }
 }
 
-dragging <- FALSE
-mouse_down <- function(event) {
-  dragging <<- TRUE
-}
-mouse_up <- function(event) {
-  dragging <<- FALSE
-}
-mouse_move <- function(event) {
-  mat <- qvDeviceMatrix(event$item, event$view)
-  pos <<- qvMap(mat, event$screenPos) 
-  if (dragging) zoom_update()
-  qvUpdate(scene)
+midmean <- function(x) mean(range(x, na.rm = TRUE))
+half_range <- function(x) diff(range(x, na.rm = TRUE)) / 2
+
+pos <- c(midmean(df$x), midmean(df$y))
+rng <- c(half_range(df$x), half_range(df$y))
+zoom_level <- 0
+
+mouse_zoom <- function(event) {
+  pos <<- event$pos
+  if (event$modifiers[["control"]]) {
+    zoom_out()
+  } else {
+    zoom_in()
+  }
 }
 
-
-
-zoom_in <- function(...) {  
+zoom_in <- function(event, ...) {  
   zoom_level <<- zoom_level + 1
   zoom_update()
 }
@@ -60,24 +47,29 @@ zoom_out <- function() {
 }
 zoom_update <- function() {
   qvSetLimits(points, 
-    c(pos[1] - xrng / 1.4 ^ zoom_level, pos[1] + xrng / 1.4 ^ zoom_level), 
-    c(pos[2] - yrng / 1.4 ^ zoom_level, pos[2] + yrng / 1.4 ^ zoom_level)
+    c(pos[1] - rng[1] / 1.4 ^ zoom_level, pos[1] + rng[1] / 1.4 ^ zoom_level), 
+    c(pos[2] - rng[2] / 1.4 ^ zoom_level, pos[2] + rng[2] / 1.4 ^ zoom_level)
   )
 }
 
-key_pressed <- function(event) {
-  print("You pressed a key!")
-}
+handle_keys <- function(event) {
+  if (event$key == arrow$up) {
+    pos[2] <<- pos[2] + rng[2] / zoom_level / 8
+  } else if (event$key == arrow$down) {
+    pos[2] <<- pos[2] - rng[2] / zoom_level / 8
+  } else if (event$key == arrow$left) {
+    pos[1] <<- pos[1] - rng[1] / zoom_level / 8
+  } else if (event$key == arrow$right) {
+    pos[1] <<- pos[1] + rng[1] / zoom_level / 8
+  }
+  zoom_update()
+  qvUpdate(scene)
+}  
 
 scene <- qvScene()
-root <- qvLayer(scene)
-
-points <- qvLayer(root, scatterplot, mouseMove = mouse_move, mouseDoubleClickFun = mouse_zoom, mouseReleaseFun = mouse_up, mousePressFun = mouse_down)
-qvSetLimits(points, range(df$x, na.rm=T), range(df$y, na.rm=T))
-
-
+points <- qvLayer(scene, scatterplot, 
+  mouseDoubleClickFun = mouse_zoom, keyPressFun = handle_keys)
+zoom_update()
 
 view <- qvViewWidget(scene = scene, opengl = FALSE)
-overlay <- qvOverlay(view)
-
 print(view)
