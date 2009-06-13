@@ -1,5 +1,6 @@
 # source("~/Documents/cranvas/demos/scatterplot.r")
 library(qtpaint)
+source("keys.r")
 
 n <- 50000
 x <- rnorm(n, 50, 25)
@@ -18,13 +19,13 @@ render_plot <- function(layer, canvas, exposed) {
 }
 
 handle_keys <- function(event) {
-  if (event$key == "16777235") {
+  if (event$key == arrow$up) {
     size <<- size + 1
-  } else if (event$key == "16777237") {
+  } else if (event$key == arrow$down) {
     size <<- max(size - 1, 1)
-  } else if (event$key == "16777234") {
+  } else if (event$key == arrow$left) {
     alpha <<- max(alpha - 0.05, 0.05)
-  } else if (event$key == "16777236") {
+  } else if (event$key == arrow$right) {
     alpha <<- min(alpha + 0.05, 1)
   }
   qvUpdate(scene)
