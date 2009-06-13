@@ -44,6 +44,4 @@ points <- qvLayer(root, scatterplot)
 qvSetLimits(points, range(df$x), range(df$y))
 
 view <- qvViewWidget(scene = scene, opengl = FALSE)
-overlay <- qvOverlay(view)
-
 print(view)

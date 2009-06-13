@@ -82,6 +82,4 @@ brush <- qvLayer(root, brushrect)
 qvSetLimits(brush, qvLimits(points))
 
 view <- qvViewWidget(scene = scene, opengl = FALSE)
-overlay <- qvOverlay(view)
-
 print(view)

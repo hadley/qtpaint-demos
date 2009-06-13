@@ -9,6 +9,7 @@ view_size <- function(item) {
   qvBoundingRect(qtpaint:::qvPaintingView(item))[2, ]
 }
 
+
 transp_cur <- rep(0.61, nrow(data))
 transp_delta <- runif(nrow(data), 0.01, 0.05)
 transp_dir <- 1
@@ -33,8 +34,6 @@ points <- qvLayer(root, redraw)
 qvSetLimits(points, c(-0.05, 1.05), c(-0.05, 1.05))
 
 view <- qvViewWidget(scene = scene, opengl = FALSE)
-overlay <- qvOverlay(view)
-
 print(view)
 
 print(system.time({for(i in 1:50) {
