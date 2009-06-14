@@ -2,10 +2,10 @@
 library(qtpaint)
 library(ggplot2)
 
-n=5000
-df = data.frame(x=rnorm(n), y=rnorm(n))
+n <- 5000
+df <- data.frame(x = rnorm(n), y = rnorm(n))
 
-bbase <- c(0,0) ;
+bbase <- c(0,0)
 h <- 0.5
 w <- 0.5
 
@@ -53,15 +53,12 @@ moveBrush <- function(event) {
     
     pt <- drag_start
   } else {
-    pt <- event$screenPos
-    
+    pt <- event$screenPos    
   }
 
   mat <- qvDeviceMatrix(event$item, event$view)
   pt <- qvMap(mat, pt)
   bbase <<- pt
-  #print (bbase)
-  
   
   qvUpdate(brush)
 }
@@ -78,13 +75,15 @@ end_drag <- function(event) {
 
 scene <- qvScene()
 root <- qvLayer(scene)
+view <- qvViewWidget(scene = scene, opengl = FALSE)
 
-points <- qvLayer(root, scatterplot, mouseMove = moveBrush, mouseReleaseFun = end_drag, mousePressFun = start_drag)
-
+points <- qvLayer(root, scatterplot, 
+  mouseMove = moveBrush, 
+  mouseReleaseFun = end_drag, 
+  mousePressFun = start_drag)
 qvSetLimits(points, range(df[,1]), range(df[,2]))
 
 brush <- qvLayer(root, brushrect)
 qvSetLimits(brush, qvLimits(points))
 
-view <- qvViewWidget(scene = scene, opengl = FALSE)
 print(view)
