@@ -1,6 +1,6 @@
 # source("~/Documents/cranvas/demos/scatterplot.r")
 library(qtpaint)
-source("keys.r")
+source("-util.r")
 
 n <- 50000
 x <- rnorm(n, 50, 25)
@@ -19,25 +19,22 @@ render_plot <- function(layer, canvas, exposed) {
 }
 
 handle_keys <- function(event) {
-  if (event$key == arrow$up) {
+  if (event$key == "up") {
     size <<- size + 1
-  } else if (event$key == arrow$down) {
+  } else if (event$key == "down") {
     size <<- max(size - 1, 1)
-  } else if (event$key == arrow$left) {
+  } else if (event$key == "left") {
     alpha <<- max(alpha - 0.05, 0.05)
-  } else if (event$key == arrow$right) {
+  } else if (event$key == "right") {
     alpha <<- min(alpha + 0.05, 1)
   }
   qvUpdate(scene)
 }
 
 scene <- qvScene()
-root <- qvLayer(scene)
-
-points <- qvLayer(root, render_plot, keyPressFun = handle_keys)
-qvFocus(points)
-qvSetLimits(points, range(df$X), range(df$X))
-
 view <- qvViewWidget(scene = scene, opengl = FALSE)
+
+points <- qvLayer(scene, render_plot, keyPressFun = handle_keys)
+qvSetLimits(points, range(df$X), range(df$X))
 
 print(view)

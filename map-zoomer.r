@@ -1,7 +1,6 @@
-# source("~/Documents/cranvas/demos/map-zoomer.r", chdir=T)
+# source("~/Documents/cranvas/demos/map-zoomer.r")
 library(qtpaint)
 library(ggplot2)
-source("keys.r")
 
 if (!exists("geo")) {
   load("~/Documents/data/08-housing-ca/geo.rdata")  
@@ -53,13 +52,13 @@ zoom_update <- function() {
 }
 
 handle_keys <- function(event) {
-  if (event$key == arrow$up) {
+  if (event$key == "up") {
     pos[2] <<- pos[2] + rng[2] / zoom_level / 8
-  } else if (event$key == arrow$down) {
+  } else if (event$key == "down") {
     pos[2] <<- pos[2] - rng[2] / zoom_level / 8
-  } else if (event$key == arrow$left) {
+  } else if (event$key == "left") {
     pos[1] <<- pos[1] - rng[1] / zoom_level / 8
-  } else if (event$key == arrow$right) {
+  } else if (event$key == "right") {
     pos[1] <<- pos[1] + rng[1] / zoom_level / 8
   }
   zoom_update()
