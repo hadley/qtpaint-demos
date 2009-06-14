@@ -5,7 +5,9 @@ library(ggplot2)
 n=5000
 df = data.frame(x=rnorm(n), y=rnorm(n))
 
-bbase <- c(0,0) ; w = .5
+bbase <- c(0,0) ;
+h <- 0.5
+w <- 0.5
 
 underbrush <- function(df, bbrush) {
    df[,1] >= bbrush[1] & df[,1] <= bbrush[1] + w &
@@ -20,21 +22,24 @@ scatterplot <- function(item, painter, exposed) {
   circle <- qvPathCircle(0, 0, min(view_size(item)) / 100)
   qvStrokeColor(painter) <- NA
     
-  pt_underbrush <- underbrush(df, bbase)             
   qvFillColor(painter) <- alpha("red", 1/10)
-  qvGlyph(painter, circle, df[!pt_underbrush, 1], df[!pt_underbrush, 2])
-
-  qvFillColor(painter) <- alpha("blue", 1/10)
-  qvGlyph(painter, circle, df[pt_underbrush, 1], df[pt_underbrush,2])
-
+  qvGlyph(painter, circle, df[, 1], df[, 2])
 }
 
-# Draw a brush
 brushrect <- function(item, painter, exposed) {
+  # Draw a brush
   qvFillColor(painter) <- NA
   qvStrokeColor(painter) <- "darkblue"
   qvLineWidth(painter) <- 3
   qvRect(painter, bbase[1], bbase[2], bbase[1]+w, bbase[2]-h)
+
+  # Draw points under the brush
+  circle <- qvPathCircle(0, 0, min(view_size(item)) / 100)
+  qvFillColor(painter) <- "blue"
+  qvStrokeColor(painter) <- NA
+
+  pt_underbrush <- underbrush(df, bbase)             
+  qvGlyph(painter, circle, df[pt_underbrush, 1], df[pt_underbrush,2])
 }  
 
 moveBrush <- function(event) {
@@ -58,7 +63,7 @@ moveBrush <- function(event) {
   #print (bbase)
   
   
-  qvUpdate(scene)
+  qvUpdate(brush)
 }
 
 drag_start <- NULL
