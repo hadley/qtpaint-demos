@@ -1,9 +1,9 @@
-# source("~/Documents/cranvas/demos/map-zoomer.r")
+# source("~/Documents/cranvas/demos/map-zoomer.r", chdir= T)
 library(qtpaint)
 library(ggplot2)
 
 if (!exists("geo")) {
-  load("~/Documents/data/08-housing-ca/geo.rdata")  
+  load("geo.rdata")  
 }
 df <- data.frame(y = geo$lat * 100, x = geo$long * 100)
 df <- df[complete.cases(df), ]
