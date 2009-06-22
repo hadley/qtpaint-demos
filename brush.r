@@ -75,7 +75,8 @@ end_drag <- function(event) {
 
 scene <- qvScene()
 root <- qvLayer(scene)
-view <- qvViewWidget(scene = scene, opengl = FALSE)
+
+view <- qvView(scene = scene)
 
 points <- qvLayer(root, scatterplot, 
   mouseMove = moveBrush, 

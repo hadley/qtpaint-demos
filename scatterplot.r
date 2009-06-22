@@ -32,7 +32,7 @@ handle_keys <- function(event) {
 }
 
 scene <- qvScene()
-view <- qvViewWidget(scene = scene, opengl = FALSE)
+view <- qvView(scene = scene)
 
 points <- qvLayer(scene, render_plot, keyPressFun = handle_keys)
 qvSetLimits(points, range(df$X), range(df$X))

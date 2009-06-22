@@ -33,7 +33,7 @@ root <- qvLayer(scene)
 points <- qvLayer(root, redraw)
 qvSetLimits(points, c(-0.05, 1.05), c(-0.05, 1.05))
 
-view <- qvViewWidget(scene = scene, opengl = FALSE)
+view <- qvView(scene = scene)
 print(view)
 
 print(system.time({for(i in 1:50) {

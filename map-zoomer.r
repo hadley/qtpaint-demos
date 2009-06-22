@@ -70,5 +70,5 @@ points <- qvLayer(scene, scatterplot,
   mouseDoubleClickFun = mouse_zoom, keyPressFun = handle_keys)
 zoom_update()
 
-view <- qvViewWidget(scene = scene, opengl = FALSE)
+view <- qvView(scene = scene)
 print(view)
