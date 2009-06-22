@@ -35,15 +35,18 @@ new_limits <- function(x, y) {
     self
   }
   
+  subset <- function(df) {
+    base::subset(df, x >= xlim()[1] & x <= xlim()[2] & 
+               y >= ylim()[1] & y <= ylim()[2])
+  }
+  
   self <- structure(list(
-    xlim = xlim, ylim = ylim, set = set,
+    xlim = xlim, ylim = ylim, set = set, subset = subset,
     pan = pan, 
     zoom = zoom, zoom_in = zoom_in, zoom_out = zoom_out
   ), class = "limits")
   self
 }
-
-lim <- new_limits(1:10, runif(20))
 
 print.limits <- function(x, ...) { 
   rng <- function(x) {
