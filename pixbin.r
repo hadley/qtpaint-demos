@@ -3,7 +3,13 @@ library(qtpaint)
 library(ash)
 
 library(ggplot2)
-df <- data.frame(x = diamonds$carat, y = diamonds$price)
+
+jitter2 <- function(x) {
+  res <- resolution(x)
+  x + runif(length(x), - res / 2, res)
+}
+
+df <- data.frame(x = jitter2(diamonds$carat), y = diamonds$price)
 
 "dim.QViz::RLayer" <- function(item) {
   qvBoundingRect(qtpaint:::qvPaintingView(item))[2, ]
