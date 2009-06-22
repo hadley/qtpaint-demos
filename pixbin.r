@@ -1,7 +1,8 @@
 # source("~/Documents/cranvas/demos/pixbin.r")
 library(qtpaint)
-library(ggplot2)
+library(ash)
 
+library(ggplot2)
 df <- data.frame(x = diamonds$carat, y = diamonds$price)
 
 "dim.QViz::RLayer" <- function(item) {
@@ -16,25 +17,22 @@ data_to_pix <- function(data, layer) {
   qvMap(mat, data)  
 }
 
-scatterplot <- function(layer, painter, exposed) {
-  xbin <- cut(df$x, nrow(layer), include.lowest=TRUE)
-  ybin <- cut(df$y, ncol(layer), include.lowest=TRUE)
-  
-  binned <- as.data.frame(xtabs(~ xbin + ybin), responseName="count")
-  binned <- subset(binned, count > 0)
-  binned$xbin <- as.numeric(binned$xbin)
-  binned$ybin <- as.numeric(binned$ybin)
-  binned$count <- binned$count / max(binned$count) *  2
-  print(nrow(binned))
+scale01 <- function(x) (x - min(x)) / diff(range(x))
 
-  coords <- pix_to_data(cbind(binned$xbin, binned$ybin), layer)
+scatterplot <- function(layer, painter, exposed) {
+  binned <- subset(pixbin2(df$x, df$y, dim(layer)), value > 0)
+  coords <- pix_to_data(cbind(binned$X1, binned$X2), layer)
   
-  square <- qvPathRect(0, 0, 1, 1)
-  
-  qvAntialias(painter) <- FALSE
-  qvStrokeColor(painter) <- "black"
-  qvFillColor(painter) <- "black"
-  qvPoint(painter, coords[, 1], coords[, 2])
+  col <- grey(scale01(-log(binned$value)))
+  qvPoint(painter, coords[, 1], coords[, 2], stroke = col)
+}
+
+pixbin2 <- function(x, y, n) {
+  mat <- cbind(df$x, df$y)
+  mat <- mat[complete.cases(mat), ]
+  rng <- rbind(range(mat[ ,1]), range(mat[, 2]))
+
+  melt(bin2(mat, rng, n)$nc)
 }
 
 scene <- qvScene()
@@ -43,5 +41,5 @@ root <- qvLayer(scene)
 points <- qvLayer(root, scatterplot)
 qvSetLimits(points, range(df$x), range(df$y))
 
-view <- qvViewWidget(scene = scene, opengl = FALSE)
+view <- qvView(scene = scene)
 print(view)
