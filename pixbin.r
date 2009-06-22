@@ -4,9 +4,14 @@ library(ash)
 
 library(ggplot2)
 
+# If the fineness (range / resolution) of the data is small, then the data
+# is somewhat discrete. When pixel-binning this gives distracting streaks 
+# where there is no data. We resolve this by jittering the data to decrease
+# the resolution to effectively zero. 
+fineness <- function(x) diff(range(x, na.rm = TRUE)) / resolution(x)
 jitter2 <- function(x) {
-  res <- resolution(x)
-  x + runif(length(x), - res / 2, res)
+  half_res <- resolution(x) / 2
+  x + runif(length(x), -half_res, half_res)
 }
 
 df <- data.frame(x = jitter2(diamonds$carat), y = diamonds$price)
