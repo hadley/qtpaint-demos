@@ -68,7 +68,7 @@ gui_xy <- function(data = flea, ...) {
     
   class_box <- ggroup(hor = F)
   add(class_box, glabel("Colour by"))
-  add(class_box, Class <- gtable(names(data)[!num], multiple = TRUE), 
+  add(class_box, Class <- gtable(c("None", names(data)[!num]), multiple = TRUE), 
     expand = TRUE)
   vbox[5, 4, expand = TRUE] <- class_box
   
@@ -146,8 +146,8 @@ create_tour <- function(data, var_selected, cat_selected, axes_location, tour_ty
   }
   
   # Work out point colours
-  cat <- data[cat_selected]
-  if (length(cat_selected) > 0) {
+  if (length(cat_selected) > 0  && cat_selected[1] != "None" ) {
+    cat <- data[cat_selected]
     # collapse to single variable if multiple selected
     int <- interaction(cat, drop = TRUE)
     pal <- rainbow_hcl(length(levels(int)))
