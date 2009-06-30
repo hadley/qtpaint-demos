@@ -1,3 +1,8 @@
+# TODO:
+#   Draw tour axes
+#   Add alpha slider
+#   Add glyph size slider
+
 # source("~/Documents/cranvas/demos/tourr-gui.r"); gui_xy()
 
 library(qtpaint)
@@ -8,7 +13,6 @@ library(RGtk2)
 library(gWidgets)
 
 gui_xy <- function(data = flea, ...) {
-  os <- find_platform()$os
   num <- sapply(data, is.numeric)
   
   tour <- NULL
@@ -22,7 +26,6 @@ gui_xy <- function(data = flea, ...) {
       aps = svalue(sl)
     )
     tour_anim <<- with(tour, tourer(data, tour_path, velocity = aps / 33))
-    
     TRUE
   }
 
@@ -42,12 +45,17 @@ gui_xy <- function(data = flea, ...) {
   }
 
   render_tour <- function(item, painter, exposed) {
-    circle <- qvPathCircle(0, 0, 4)
-    qvStrokeColor(painter) <- NA
-    qvFillColor(painter) <- "black"
-    qvGlyph(painter, circle, data_proj[, 1], data_proj[,2])
+    size <- svalue(sl_size)
+    if (size == 1) {
+      qvStrokeColor(painter) <- alpha("black", svalue(sl_alpha))
+      qvPoint(painter, data_proj[, 1], data_proj[,2])      
+    } else {
+      circle <- qvPathCircle(0, 0, size)
+      qvFillColor(painter) <- alpha("black", svalue(sl_alpha))
+      qvStrokeColor(painter) <- NA
+      qvGlyph(painter, circle, data_proj[, 1], data_proj[,2])
+    }
   }
-  
   
   # ==================Controls==========================
   w <- gwindow("2D Tour plot example", visible = FALSE)
@@ -57,28 +65,45 @@ gui_xy <- function(data = flea, ...) {
   vbox[1, 1, anchor = c(-1, 0)] <- "Variable Selection"
   vbox[2, 1] <- Variables <- gcheckboxgroup(names(data[num]), 
     checked = TRUE, horizontal = FALSE)
-  vbox[3, 1, anchor = c(-1, 0)] <- "Class Selection"
-  vbox[4, 1, anchor = c(-1, 0)] <- Class <- gtable(names(data)[!num], 
-    multiple = TRUE)
-
+    
+  class_box <- ggroup(hor = F)
+  add(class_box, glabel("Colour by"))
+  add(class_box, Class <- gtable(names(data)[!num], multiple = TRUE), 
+    expand = TRUE)
+  vbox[5, 4, expand = TRUE] <- class_box
+  
   # Tour selection column
   vbox[1, 3, anchor=c(-1, 0)] <- "Tour Type"
   tour_types <- c("Grand", "Little", "Guided(holes)", "Guided(cm)", "Guided(lda_pp)", "Local")
   vbox[2, 3] <- TourType <- gradio(tour_types)
 
-  # speed and pause
-  vbox[5,1, anchor = c(-1, 0)] <- "Speed"
-  vbox[6,1, expand = TRUE] <- sl <- gslider(from = 0, to = 5, by = 0.1, value = 1)
+  # control aesthetics
+  aes_box <- glayout()
   
-  vbox[6, 3] <- chk_pause <- gcheckbox("Pause", 
-    handler = function(h, ...) pause(svalue(h$obj)))
-
-  # axes control
-  vbox[3,3, anchor=c(-1,0)] <- "Axes Locations"
-  locations <- c("center", "bottomleft", "off")
-  vbox[4,3, anchor=c(-1,0)] <- dl <- gradio(locations)
+  aes_box[1,1, anchor = c(1, -1)] <- "Speed"
+  aes_box[1,2, expand = TRUE] <- sl <- 
+    gslider(from = 0, to = 5, by = 0.1, value = 1)
+  aes_box[2,1, anchor = c(1, -1)] <- "Transparency"
+  aes_box[2,2, expand = TRUE] <- sl_alpha <- 
+    gslider(from = 0, to = 1, by = 0.01, value = 1)
+  aes_box[3,1, anchor = c(1, -1)] <- "Size"
+  aes_box[3,2, expand = TRUE] <- sl_size <- 
+    gslider(from = 1, to = 8, by = 0.5, value = 2)
+  
+  vbox[5, 1:3] <- aes_box
 
   # buttons control
+  buttonGroup <- ggroup(horizontal = F, cont=vbox)  
+  
+  gbutton("Apply", cont = buttonGroup, handler = function(...) {
+    pause(FALSE)
+    update_tour()
+  })
+  gbutton("Quit",cont=buttonGroup, handler = function(...) {
+    pause(TRUE)
+    qclose(view)
+    dispose(w)
+  })
   anim_id <- NULL
   pause <- function(paused) {
     svalue(chk_pause) <- paused
@@ -90,23 +115,11 @@ gui_xy <- function(data = flea, ...) {
       anim_id <<- gIdleAdd(step_tour)
     }
   }
-  
-  buttonGroup <- ggroup(horizontal = F, cont=vbox)  
-  
-  # addSpace(buttonGroup,10)
-  gbutton("Apply", cont = buttonGroup, handler = function(...) {
-    pause(FALSE)
-    update_tour()
-  })
-  
-  # addSpace(buttonGroup,10)
-  gbutton("Quit",cont=buttonGroup, handler = function(...) {
-    pause(TRUE)
-    qclose(view)
-    dispose(w)
-  })
+  chk_pause <- gcheckbox("Pause", cont = buttonGroup,
+    handler = function(h, ...) pause(svalue(h$obj)))
 
-  vbox[4:6, 4, anchor = c(0, 1)] <- buttonGroup
+
+  vbox[2, 4, anchor = c(0, 1)] <- buttonGroup
   
   # Create canvas for displaying tour
   scene <- qvScene()
@@ -115,7 +128,7 @@ gui_xy <- function(data = flea, ...) {
   points <- qvLayer(root, render_tour)
   qvSetLimits(points, c(-3, 3), c(-3, 3))
 
-  view <- qvView(scene = scene, opengl = FALSE)
+  view <- qvView(scene = scene)
   print(view)
   
   update_tour()
@@ -143,9 +156,6 @@ create_tour <- function(data, var_selected, cat_selected, axes_location, tour_ty
     col <- "black"
   }
   
-  display <- display_xy(data, axes = axes_location, center = TRUE, 
-    col = col)
-
   # Work out which type of tour to use
   tour <- switch(tour_type,
     "Grand" = grand_tour(), 
@@ -166,7 +176,7 @@ create_tour <- function(data, var_selected, cat_selected, axes_location, tour_ty
   list(
     data = rescale(sel),
     tour_path = tour,
-    display = display,
+    colour = col,
     aps = aps
   )
 }
