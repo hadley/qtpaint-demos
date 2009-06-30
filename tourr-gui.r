@@ -45,15 +45,15 @@ gui_xy <- function(data = flea, ...) {
   }
 
   render_tour <- function(item, painter, exposed) {
+    col <- alpha(tour$colour, svalue(sl_alpha))
+    if (length(col) == 1) col <- rep(col, nrow(tour$data))
     size <- svalue(sl_size)
     if (size == 1) {
-      qvStrokeColor(painter) <- alpha("black", svalue(sl_alpha))
-      qvPoint(painter, data_proj[, 1], data_proj[,2])      
+      qvPoint(painter, data_proj[, 1], data_proj[,2], stroke = col)      
     } else {
       circle <- qvPathCircle(0, 0, size)
-      qvFillColor(painter) <- alpha("black", svalue(sl_alpha))
       qvStrokeColor(painter) <- NA
-      qvGlyph(painter, circle, data_proj[, 1], data_proj[,2])
+      qvGlyph(painter, circle, data_proj[, 1], data_proj[,2], fill = col)
     }
   }
   
@@ -127,13 +127,13 @@ gui_xy <- function(data = flea, ...) {
 
   points <- qvLayer(root, render_tour)
   qvSetLimits(points, c(-3, 3), c(-3, 3))
-
-  view <- qvView(scene = scene)
-  print(view)
   
   update_tour()
   pause(FALSE)
   visible(w) <- TRUE
+
+  view <- qvView(scene = scene)
+  print(view)
   
   invisible()
 }
