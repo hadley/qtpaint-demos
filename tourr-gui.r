@@ -18,24 +18,27 @@ gui_xy <- function(data = flea, ...) {
   tour <- NULL
   tour_anim <- NULL
   update_tour <- function(...) {
-    tour <<- create_tour(data,
+    tour <<- create_tour(data, 
       var_selected = svalue(Variables), 
       cat_selected = svalue(Class), 
       axes_location = svalue(dl),
       tour_type = svalue(TourType),
       aps = svalue(sl)
     )
-    tour_anim <<- with(tour, tourer(data, tour_path, velocity = aps / 33))
+    tour_anim <<- with(tour, tourer(data, tour_path, proj = cur_proj, velocity = aps / 33))
     TRUE
   }
 
   data_proj <- NULL
+  cur_proj <- NULL
   step_tour <- function(...) {
     # if there's no tour, don't draw anything
     if (is.null(tour)) return(FALSE)
 
     tour_step <- tour_anim$step2(svalue(sl) / 33)
     if (is.null(tour_step$proj)) return(FALSE)
+
+    cur_proj <<- tour_step$proj
     
     data_proj <<- tour$data %*% tour_step$proj
     qupdate(points)
