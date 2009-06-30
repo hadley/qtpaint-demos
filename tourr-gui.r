@@ -38,8 +38,7 @@ gui_xy <- function(data = flea, ...) {
     if (is.null(tour_step$proj)) return(FALSE)
     
     data_proj <<- tour$data %*% tour_step$proj
-    qvUpdate(points)
-    Sys.sleep(1/33)
+    qupdate(points)
     
     return(TRUE)
   }
@@ -49,11 +48,11 @@ gui_xy <- function(data = flea, ...) {
     if (length(col) == 1) col <- rep(col, nrow(tour$data))
     size <- svalue(sl_size)
     if (size == 1) {
-      qvPoint(painter, data_proj[, 1], data_proj[,2], stroke = col)      
+      qpoint(painter, data_proj[, 1], data_proj[,2], stroke = col)      
     } else {
-      circle <- qvPathCircle(0, 0, size)
-      qvStrokeColor(painter) <- NA
-      qvGlyph(painter, circle, data_proj[, 1], data_proj[,2], fill = col)
+      circle <- qpathCircle(0, 0, size)
+      qstrokeColor(painter) <- NA
+      qglyph(painter, circle, data_proj[, 1], data_proj[,2], fill = col)
     }
   }
   
@@ -104,15 +103,13 @@ gui_xy <- function(data = flea, ...) {
     qclose(view)
     dispose(w)
   })
-  anim_id <- NULL
+  timer <- qtimer(30, step_tour)
   pause <- function(paused) {
     svalue(chk_pause) <- paused
     if (paused) {
-      gtkIdleRemove(anim_id)
-      anim_id <<- NULL
+      timer$stop()
     } else {
-      if (!is.null(anim_id)) gtkIdleRemove(anim_id)
-      anim_id <<- gIdleAdd(step_tour)
+      timer$start()
     }
   }
   chk_pause <- gcheckbox("Pause", cont = buttonGroup,
@@ -122,17 +119,17 @@ gui_xy <- function(data = flea, ...) {
   vbox[2, 4, anchor = c(0, 1)] <- buttonGroup
   
   # Create canvas for displaying tour
-  scene <- qvScene()
-  root <- qvLayer(scene)
+  scene <- qscene()
+  root <- qlayer(scene)
 
-  points <- qvLayer(root, render_tour)
-  qvSetLimits(points, c(-3, 3), c(-3, 3))
+  points <- qlayer(root, render_tour)
+  qsetLimits(points, c(-3, 3), c(-3, 3))
   
   update_tour()
   pause(FALSE)
   visible(w) <- TRUE
 
-  view <- qvView(scene = scene)
+  view <- qview(scene = scene)
   print(view)
   
   invisible()
