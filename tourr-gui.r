@@ -1,3 +1,4 @@
+# olive$region <- factor(olive$region)
 # source("~/Documents/cranvas/demos/tourr-gui.r"); gui_xy()
 
 library(qtbase)
@@ -39,13 +40,13 @@ gui_xy <- function(data = flea, ...) {
   step_tour <- function(...) {
     # if there's no tour, don't draw anything
     if (is.null(tour)) {
-      timer$stop()
+      pause(TRUE)
       return()
     }
 
     tour_step <- tour_anim$step2(svalue(sl) / 33)
     if (is.null(tour_step$proj)) {
-      timer$stop()
+      pause(TRUE)
       return()
      }
 
@@ -53,8 +54,6 @@ gui_xy <- function(data = flea, ...) {
     
     data_proj <<- tour$data %*% tour_step$proj
     qupdate(points)
-    
-    return(TRUE)
   }
 
   render_tour <- function(item, painter, exposed) {
