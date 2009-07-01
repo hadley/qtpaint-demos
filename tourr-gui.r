@@ -75,7 +75,11 @@ gui_xy <- function(data = flea, ...) {
   }
   
   # ==================Controls==========================
-  w <- gwindow("2D Tour plot example", visible = FALSE)
+  w <- gwindow("2D Tour plot example", visible = FALSE, 
+    handler = function(...) {
+      pause(TRUE)
+      qclose(view)
+    })
   vbox <- glayout(cont = w)
 
   # Variable selection column
@@ -118,8 +122,6 @@ gui_xy <- function(data = flea, ...) {
     update_tour()
   })
   gbutton("Quit",cont=buttonGroup, handler = function(...) {
-    pause(TRUE)
-    qclose(view)
     dispose(w)
   })
   timer <- qtimer(30, step_tour)
