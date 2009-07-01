@@ -9,14 +9,13 @@ df <- data.frame(y = geo$lat * 100, x = geo$long * 100)
 df <- df[complete.cases(df), ]
 
 scatterplot <- function(layer, painter, exposed) {
-  qvAntialias(painter) <- FALSE
-  qvStrokeColor(painter) <- "black"
-  qvFillColor(painter) <- "black"
+  qstrokeColor(painter) <- "black"
+  qfillColor(painter) <- "black"
   if (zoom_level > 10) {
-    circle <- qvPathCircle(0, 0, 2)    
-    qvGlyph(painter, circle, df$x, df$y)    
+    circle <- qpathCircle(0, 0, 2)    
+    qdrawGlyph(painter, circle, df$x, df$y)    
   } else {
-    qvPoint(painter, df$x, df$y)    
+    qdrawPoint(painter, df$x, df$y)    
   }
 }
 
@@ -45,7 +44,7 @@ zoom_out <- function() {
   zoom_update()  
 }
 zoom_update <- function() {
-  qvSetLimits(points, 
+  qlimits(points) <- qrect(
     c(pos[1] - rng[1] / 1.4 ^ zoom_level, pos[1] + rng[1] / 1.4 ^ zoom_level), 
     c(pos[2] - rng[2] / 1.4 ^ zoom_level, pos[2] + rng[2] / 1.4 ^ zoom_level)
   )
@@ -62,13 +61,13 @@ handle_keys <- function(event) {
     pos[1] <<- pos[1] + rng[1] / zoom_level / 8
   }
   zoom_update()
-  qvUpdate(scene)
+  qupdate(scene)
 }  
 
-scene <- qvScene()
-points <- qvLayer(scene, scatterplot, 
+scene <- qgraphicsScene()
+points <- qlayer(scene, scatterplot, 
   mouseDoubleClickFun = mouse_zoom, keyPressFun = handle_keys)
 zoom_update()
 
-view <- qvView(scene = scene)
+view <- qplotView(scene = scene)
 print(view)

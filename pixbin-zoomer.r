@@ -12,12 +12,12 @@ df <- df[complete.cases(df), ]
 
 
 "dim.QViz::RLayer" <- function(item) {
-  qvBoundingRect(qtpaint:::qvPaintingView(item))[2, ]
+  qboundingRect(qtpaint:::qpaintingView(item))[2, ]
 }
 pix_to_data <- function(data, layer) {
   data[, 2] <- ncol(layer) - data[, 2]
-  mat <- qvDeviceMatrix(layer, inverted = TRUE)
-  qvMap(mat, data)
+  mat <- qdeviceMatrix(layer, inverted = TRUE)
+  qmap(mat, data)
 }
 
 scale01 <- function(x) (x - min(x)) / diff(range(x))
@@ -28,7 +28,7 @@ scatterplot <- function(layer, painter, exposed) {
   coords <- pix_to_data(cbind(binned$X1, binned$X2), layer)
   
   col <- grey(scale01(-log(binned$value)))
-  qvPoint(painter, coords[, 1], coords[, 2], stroke = col)
+  qdrawPoint(painter, coords[, 1], coords[, 2], stroke = col)
 }
 
 pixbin2 <- function(x, y, n) {
@@ -42,20 +42,20 @@ pixbin2 <- function(x, y, n) {
 zoom <- function(ev) {
   if (ev$delta > 0) {
     limits$zoom_in()
-    qvUpdate(points)
+    qupdate(points)
   } else {
     limits$zoom_out()
-    qvUpdate(points)
+    qupdate(points)
   }
 }
 
-scene <- qvScene()
-root <- qvLayer(scene)
+scene <- qgraphicsScene()
+root <- qlayer(scene)
 
-points <- qvLayer(root, scatterplot, wheelFun = zoom)
-qvSetLimits(points, c(0, 1), c(0, 1))
+points <- qlayer(root, scatterplot, wheelFun = zoom)
+qlimits(points) <- qrect(c(0, 1), c(0, 1))
 
 limits <- new_limits(df$x, df$y)
 
-view <- qvView(scene = scene)
+view <- qplotView(scene = scene)
 print(view)

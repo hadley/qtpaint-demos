@@ -15,38 +15,38 @@ underbrush <- function(df, bbrush) {
 }
 
 view_size <- function(item) {
-  qvBoundingRect(qtpaint:::qvPaintingView(item))[2, ]
+  qboundingRect(qtpaint:::qpaintingView(item))[2, ]
 }
 
 scatterplot <- function(item, painter, exposed) {
-  circle <- qvPathCircle(0, 0, min(view_size(item)) / 100)
-  qvStrokeColor(painter) <- NA
+  circle <- qpathCircle(0, 0, min(view_size(item)) / 100)
+  qstrokeColor(painter) <- NA
     
-  qvFillColor(painter) <- alpha("red", 1/10)
-  qvGlyph(painter, circle, df[, 1], df[, 2])
+  qfillColor(painter) <- alpha("red", 1/10)
+  qdrawGlyph(painter, circle, df[, 1], df[, 2])
 }
 
 brushrect <- function(item, painter, exposed) {
   # Draw a brush
-  qvFillColor(painter) <- NA
-  qvStrokeColor(painter) <- "darkblue"
-  qvLineWidth(painter) <- 3
-  qvRect(painter, bbase[1], bbase[2], bbase[1]+w, bbase[2]-h)
+  qfillColor(painter) <- NA
+  qstrokeColor(painter) <- "darkblue"
+  qlineWidth(painter) <- 3
+  qdrawRect(painter, bbase[1], bbase[2], bbase[1]+w, bbase[2]-h)
 
   # Draw points under the brush
-  circle <- qvPathCircle(0, 0, min(view_size(item)) / 100)
-  qvFillColor(painter) <- "blue"
-  qvStrokeColor(painter) <- NA
+  circle <- qpathCircle(0, 0, min(view_size(item)) / 100)
+  qfillColor(painter) <- "blue"
+  qstrokeColor(painter) <- NA
 
   pt_underbrush <- underbrush(df, bbase)             
-  qvGlyph(painter, circle, df[pt_underbrush, 1], df[pt_underbrush,2])
+  qdrawGlyph(painter, circle, df[pt_underbrush, 1], df[pt_underbrush,2])
 }  
 
 moveBrush <- function(event) {
   if (!is.null(drag_start)) {
     drag_end <- event$screenPos
-    mat <- qvDeviceMatrix(event$item, event$view)
-    size <- qvMap(mat, drag_end) - qvMap(mat, drag_start)
+    mat <- qdeviceMatrix(event$item, event$view)
+    size <- qmap(mat, drag_end) - qmap(mat, drag_start)
 
     w <<- abs(size[1])
     h <<- abs(size[2])    
@@ -56,11 +56,11 @@ moveBrush <- function(event) {
     pt <- event$screenPos    
   }
 
-  mat <- qvDeviceMatrix(event$item, event$view)
-  pt <- qvMap(mat, pt)
+  mat <- qdeviceMatrix(event$item, event$view)
+  pt <- qmap(mat, pt)
   bbase <<- pt
   
-  qvUpdate(brush)
+  qupdate(brush)
 }
 
 drag_start <- NULL
@@ -73,18 +73,18 @@ end_drag <- function(event) {
 }
 
 
-scene <- qvScene()
-root <- qvLayer(scene)
+scene <- qgraphicsScene()
+root <- qlayer(scene)
 
-view <- qvView(scene = scene)
+view <- qplotView(scene = scene)
 
-points <- qvLayer(root, scatterplot, 
+points <- qlayer(root, scatterplot, 
   mouseMove = moveBrush, 
   mouseReleaseFun = end_drag, 
   mousePressFun = start_drag)
-qvSetLimits(points, range(df[,1]), range(df[,2]))
+qlimits(points) <- qrect(range(df[,1]), range(df[,2]))
 
-brush <- qvLayer(root, brushrect)
-qvSetLimits(brush, qvLimits(points))
+brush <- qlayer(root, brushrect)
+qlimits(brush) <- qlimits(points)
 
 print(view)

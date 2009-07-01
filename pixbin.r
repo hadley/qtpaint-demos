@@ -17,15 +17,15 @@ jitter2 <- function(x) {
 df <- data.frame(x = jitter2(diamonds$carat), y = diamonds$price)
 
 "dim.QViz::RLayer" <- function(item) {
-  qvBoundingRect(qtpaint:::qvPaintingView(item))[2, ]
+  qboundingRect(qtpaint:::qpaintingView(item))[2, ]
 }
 pix_to_data <- function(data, layer) {
-  mat <- qvDeviceMatrix(layer, inverted = TRUE)
-  qvMap(mat, data)
+  mat <- qdeviceMatrix(layer, inverted = TRUE)
+  qmap(mat, data)
 }
 data_to_pix <- function(data, layer) {
-  mat <- qvDeviceMatrix(layer, inverted = FALSE)
-  qvMap(mat, data)  
+  mat <- qdeviceMatrix(layer, inverted = FALSE)
+  qmap(mat, data)  
 }
 
 scale01 <- function(x) (x - min(x)) / diff(range(x))
@@ -35,7 +35,7 @@ scatterplot <- function(layer, painter, exposed) {
   coords <- pix_to_data(cbind(binned$X1, binned$X2), layer)
   
   col <- grey(scale01(-log(binned$value)))
-  qvPoint(painter, coords[, 1], coords[, 2], stroke = col)
+  qdrawPoint(painter, coords[, 1], coords[, 2], stroke = col)
 }
 
 pixbin2 <- function(x, y, n) {
@@ -46,11 +46,11 @@ pixbin2 <- function(x, y, n) {
   melt(bin2(mat, rng, n)$nc)
 }
 
-scene <- qvScene()
-root <- qvLayer(scene)
+scene <- qgraphicsScene()
+root <- qlayer(scene)
 
-points <- qvLayer(root, scatterplot)
-qvSetLimits(points, range(df$x), range(df$y))
+points <- qlayer(root, scatterplot)
+qlimits(points) <- qrect(range(df$x), range(df$y))
 
-view <- qvView(scene = scene)
+view <- qplotView(scene = scene)
 print(view)

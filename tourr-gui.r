@@ -137,17 +137,17 @@ gui_xy <- function(data = flea, ...) {
   vbox[2, 4, anchor = c(0, 1)] <- buttonGroup
   
   # Create canvas for displaying tour
-  scene <- qscene()
+  scene <- qgraphicsScene()
   root <- qlayer(scene)
 
   points <- qlayer(root, render_tour)
-  qsetLimits(points, c(-3, 3), c(-3, 3))
+  qlimits(points) <- qrect(c(-3, 3), c(-3, 3))
   
   update_tour()
   pause(FALSE)
   visible(w) <- TRUE
 
-  view <- qview(scene = scene)
+  view <- qiew(scene = scene)
   print(view)
   
   invisible()

@@ -1,5 +1,5 @@
 # l(qtpaint)
-# source("~/Documents/cranvas/demos/alpha.r")
+# source("~/Documents/cranvas/demos/random-walk.r")
 library(qtpaint)
 library(ggplot2)
 
@@ -9,31 +9,31 @@ y <- runif(n)
 df <- data.frame(X = x, Y = y)
 
 view_size <- function(item) {
-  qvBoundingRect(qtpaint:::qvPaintingView(item))[2, ]
+  qboundingRect(qtpaint:::qpaintingView(item))[2, ]
 }
 
 scatterplot <- function(item, painter, exposed) {
   # print(min(view_size(item)) / 100)
-  circle <- qvPathCircle(0, 0, min(view_size(item)) / 100)
-  qvFillColor(painter) <- alpha("red", 1/20)
-  qvStrokeColor(painter) <- NA
-  qvGlyph(painter, circle, df[,1], df[,2])
+  circle <- qpathCircle(0, 0, min(view_size(item)) / 100)
+  qfillColor(painter) <- alpha("red", 1/20)
+  qstrokeColor(painter) <- NA
+  qdrawGlyph(painter, circle, df[,1], df[,2])
 }
 
-scene <- qvScene()
-root <- qvLayer(scene)
+scene <- qgraphicsScene()
+root <- qlayer(scene)
 
-points <- qvLayer(root, scatterplot)
-qvSetLimits(points, range(df[,1]), range(df[,2]))
+points <- qlayer(root, scatterplot)
+qlimits(points) <- qrect(range(df[,1]), range(df[,2]))
 
-view <- qvView(scene = scene)
+view <- qplotView(scene = scene)
 print(view)
 
 
 print(system.time({
   for(i in 1:10) {
     df$X <- df$X + runif(nrow(df), -0.01, 0.01)
-    qvUpdate(scene)
+    qupdate(scene)
     Sys.sleep(1 / 66)
   }
 }))

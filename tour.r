@@ -2,10 +2,10 @@
 # source("~/Documents/cranvas/demos/tour.r")
 library(qtpaint)
 library(ggplot2)
-l(tourr)
+library(tourr)
 
 view_size <- function(item) {
-  qvBoundingRect(qtpaint:::qvPaintingView(item))[2, ]
+  qboundingRect(qtpaint:::qpaintingView(item))[2, ]
 }
 
 f <- rescaler(flea[,1:4])
@@ -18,19 +18,19 @@ colour_scale$train(flea$species, TRUE)
 cols <- colour_scale$map(flea$species)
 
 redraw <- function(item, painter, exposed) {
-  circle <- qvPathCircle(0, 0, max(min(view_size(item) / 100), 1))
+  circle <- qpathCircle(0, 0, max(min(view_size(item) / 100), 1))
   
-  qvStrokeColor(painter) <- NA
-  qvGlyph(painter, circle, data[, 1], data[,2], fill = cols)
+  qstrokeColor(painter) <- NA
+  qdrawGlyph(painter, circle, data[, 1], data[,2], fill = cols)
 }
 
-scene <- qvScene()
-root <- qvLayer(scene)
+scene <- qgraphicsScene()
+root <- qlayer(scene)
 
-points <- qvLayer(root, redraw)
-qvSetLimits(points, c(-3, 3), c(-3, 3))
+points <- qlayer(root, redraw)
+qlimits(points) <- qrect(c(-3, 3), c(-3, 3))
 
-view <- qvView(scene = scene)
+view <- qplotView(scene = scene)
 print(view)
 
 
@@ -39,7 +39,7 @@ print(system.time({
     step <- tour_anim$step2(1 / 33)
     data <- scale(as.matrix(f) %*% step$proj)
     
-    qvUpdate(scene)
+    qupdate(scene)
     Sys.sleep(1 / 66)
   }
 }))

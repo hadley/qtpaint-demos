@@ -1,6 +1,5 @@
 # source("~/Documents/cranvas/demos/scatterplot.r")
 library(qtpaint)
-source("-util.r")
 
 n <- 50000
 x <- rnorm(n, 50, 25)
@@ -11,11 +10,11 @@ size <- 3
 alpha <- 1
 
 render_plot <- function(layer, canvas, exposed) {
-  circle <- qvPathCircle(0, 0, size)
+  circle <- qpathCircle(0, 0, size)
 
-  qvFillColor(canvas) <- ggplot2::alpha("blue", alpha)
-  qvStrokeColor(canvas) <- NA
-  qvGlyph(canvas, circle, df[,1], df[,2])
+  qfillColor(canvas) <- ggplot2::alpha("blue", alpha)
+  qstrokeColor(canvas) <- NA
+  qdrawGlyph(canvas, circle, df[,1], df[,2])
 }
 
 handle_keys <- function(event) {
@@ -28,13 +27,13 @@ handle_keys <- function(event) {
   } else if (event$key == "right") {
     alpha <<- min(alpha + 0.05, 1)
   }
-  qvUpdate(scene)
+  qupdate(scene)
 }
 
-scene <- qvScene()
-view <- qvView(scene = scene)
+scene <- qgraphicsScene()
+view <- qplotView(scene = scene)
 
-points <- qvLayer(scene, render_plot, keyPressFun = handle_keys)
-qvSetLimits(points, range(df$X), range(df$X))
+points <- qlayer(scene, render_plot, keyPressFun = handle_keys)
+qlimits(points) <- qrect(range(df$X), range(df$X))
 
 print(view)

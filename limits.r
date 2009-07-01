@@ -30,8 +30,8 @@ new_limits <- function(x, y) {
   }
   
   set <- function(layer) {
-    qvSetLimits(layer, xlim(), ylim())
-    qvUpdate(layer)
+    qlimits(layer) <- qrect(xlim(), ylim())
+    qupdate(layer)
     self
   }
   
