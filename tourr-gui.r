@@ -15,6 +15,11 @@ gui_xy <- function(data = flea, ...) {
   tour_anim <- NULL
   prev_var <- NULL
   update_tour <- function(...) {
+    if (!identical(prev_var, svalue(Variables))) {
+      cur_proj <<- NULL
+      prev_var <<- svalue(Variables)
+    }
+
     tour <<- create_tour(data, 
       var_selected = svalue(Variables), 
       cat_selected = svalue(Class), 
@@ -24,10 +29,6 @@ gui_xy <- function(data = flea, ...) {
       cur_proj = cur_proj
     )
     
-    if (!identical(prev_var, svalue(Variables))) {
-      cur_proj <<- NULL
-      prev_var <<- svalue(Variables)
-    }
     
     tour_anim <<- with(tour, tourer(data, tour_path, proj = cur_proj, velocity = aps / 33))
     TRUE
@@ -93,18 +94,19 @@ gui_xy <- function(data = flea, ...) {
   # Variable selection column
   vbox[1, 1, anchor = c(-1, 0)] <- "Variable Selection"
   vbox[2, 1] <- Variables <- gcheckboxgroup(names(data[num]), 
-    checked = TRUE, horizontal = FALSE)
+    checked = TRUE, horizontal = FALSE, handler = update_tour)
     
   class_box <- ggroup(hor = F)
   add(class_box, glabel("Colour by"))
-  add(class_box, Class <- gtable(c("None", names(data)[!num]), multiple = TRUE), 
-    expand = TRUE)
+  add(class_box, Class <- gtable(c("None", names(data)[!num]), 
+    multiple = TRUE), expand = TRUE)
+  addhandlerclicked(Class, update_tour)
   vbox[5, 4, expand = TRUE] <- class_box
   
   # Tour selection column
   vbox[1, 3, anchor=c(-1, 0)] <- "Tour Type"
   tour_types <- c("Grand", "Little", "Guided(holes)", "Guided(cm)", "Guided(lda_pp)", "Local")
-  vbox[2, 3] <- TourType <- gradio(tour_types)
+  vbox[2, 3] <- TourType <- gradio(tour_types, handler = update_tour)
 
 
   # control aesthetics
