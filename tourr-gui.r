@@ -5,6 +5,7 @@
 
 # source("~/Documents/cranvas/demos/tourr-gui.r"); gui_xy()
 
+library(qtbase)
 library(qtpaint)
 library(ggplot2, warn.conflicts = FALSE)
 library(tourr, warn.conflicts = FALSE)
@@ -57,6 +58,20 @@ gui_xy <- function(data = flea, ...) {
       qstrokeColor(painter) <- NA
       qglyph(painter, circle, data_proj[, 1], data_proj[,2], fill = col)
     }
+    
+    # Draw axes
+    if (!is.null(cur_proj)) {
+      pos <- cur_proj * 2
+      labels <- abbreviate(colnames(tour$data))
+
+      qstrokeColor(painter) <- "grey50"
+      qdrawSegment(painter, rep(0, nrow(pos)), rep(0, nrow(pos)), pos[, 1], pos[, 2])
+      theta <- seq(0, 2 * pi, length = 50)
+      qdrawPolyline(painter, cos(theta) * 2, sin(theta) * 2)
+      qdrawText(painter, labels, pos[, 1], pos[, 2])
+      
+    }
+    
   }
   
   # ==================Controls==========================
