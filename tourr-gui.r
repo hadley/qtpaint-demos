@@ -1,8 +1,3 @@
-# TODO:
-#   Draw tour axes
-#   Add alpha slider
-#   Add glyph size slider
-
 # source("~/Documents/cranvas/demos/tourr-gui.r"); gui_xy()
 
 library(qtbase)
@@ -49,25 +44,24 @@ gui_xy <- function(data = flea, ...) {
 
   render_tour <- function(item, painter, exposed) {
     col <- alpha(tour$colour, svalue(sl_alpha))
-    if (length(col) == 1) col <- rep(col, nrow(tour$data))
     size <- svalue(sl_size)
     if (size == 1) {
-      qpoint(painter, data_proj[, 1], data_proj[,2], stroke = col)      
+      qdrawPoint(painter, data_proj[, 1], data_proj[,2], stroke = col)      
     } else {
       circle <- qpathCircle(0, 0, size)
       qstrokeColor(painter) <- NA
-      qglyph(painter, circle, data_proj[, 1], data_proj[,2], fill = col)
+      qdrawGlyph(painter, circle, data_proj[, 1], data_proj[,2], fill = col)
     }
     
     # Draw axes
     if (!is.null(cur_proj)) {
       pos <- cur_proj * 2
       labels <- abbreviate(colnames(tour$data))
-
+       
       qstrokeColor(painter) <- "grey50"
-      qdrawSegment(painter, rep(0, nrow(pos)), rep(0, nrow(pos)), pos[, 1], pos[, 2])
+      qdrawSegment(painter, 0, 0, pos[, 1], pos[, 2])
       theta <- seq(0, 2 * pi, length = 50)
-      qdrawPolyline(painter, cos(theta) * 2, sin(theta) * 2)
+      qdrawLine(painter, cos(theta) * 2, sin(theta) * 2)
       qdrawText(painter, labels, pos[, 1], pos[, 2])
       
     }
@@ -147,7 +141,7 @@ gui_xy <- function(data = flea, ...) {
   pause(FALSE)
   visible(w) <- TRUE
 
-  view <- qiew(scene = scene)
+  view <- qplotView(scene = scene, opengl = F)
   print(view)
   
   invisible()
