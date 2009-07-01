@@ -21,7 +21,7 @@ gui_xy <- function(data = flea, ...) {
       tour_type = svalue(TourType),
       aps = svalue(sl)
     )
-    tour_anim <<- with(tour, tourer(data, tour_path, proj = cur_proj, velocity = aps / 33))
+    tour_anim <<- with(tour, tourer(data, tour_path, velocity = aps / 33)) # proj = cur_proj, 
     TRUE
   }
 
@@ -29,10 +29,16 @@ gui_xy <- function(data = flea, ...) {
   cur_proj <- NULL
   step_tour <- function(...) {
     # if there's no tour, don't draw anything
-    if (is.null(tour)) return(FALSE)
+    if (is.null(tour)) {
+      timer$stop()
+      return()
+    }
 
     tour_step <- tour_anim$step2(svalue(sl) / 33)
-    if (is.null(tour_step$proj)) return(FALSE)
+    if (is.null(tour_step$proj)) {
+      timer$stop()
+      return()
+     }
 
     cur_proj <<- tour_step$proj
     
@@ -88,6 +94,7 @@ gui_xy <- function(data = flea, ...) {
   tour_types <- c("Grand", "Little", "Guided(holes)", "Guided(cm)", "Guided(lda_pp)", "Local")
   vbox[2, 3] <- TourType <- gradio(tour_types)
 
+
   # control aesthetics
   aes_box <- glayout()
   
@@ -127,6 +134,15 @@ gui_xy <- function(data = flea, ...) {
   chk_pause <- gcheckbox("Pause", cont = buttonGroup,
     handler = function(h, ...) pause(svalue(h$obj)))
 
+  glabel("Optimise for:", cont = buttonGroup)
+  gradio(c("Speed", "Quality"), cont = buttonGroup, 
+    handler = function(ev, ...) {
+      qopengl(view) <- svalue(ev$obj) == "Speed"
+    })
+  
+  # 
+    
+
 
   vbox[2, 4, anchor = c(0, 1)] <- buttonGroup
   
@@ -135,13 +151,13 @@ gui_xy <- function(data = flea, ...) {
   root <- qlayer(scene)
 
   points <- qlayer(root, render_tour)
-  qlimits(points) <- qrect(c(-3, 3), c(-3, 3))
+  qlimits(points) <- qrect(c(-2, 2), c(-2, 2))
   
   update_tour()
   pause(FALSE)
   visible(w) <- TRUE
 
-  view <- qplotView(scene = scene, opengl = F)
+  view <- qplotView(scene = scene, opengl = T)
   print(view)
   
   invisible()
