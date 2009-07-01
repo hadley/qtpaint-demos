@@ -13,15 +13,23 @@ gui_xy <- function(data = flea, ...) {
   
   tour <- NULL
   tour_anim <- NULL
+  prev_var <- NULL
   update_tour <- function(...) {
     tour <<- create_tour(data, 
       var_selected = svalue(Variables), 
       cat_selected = svalue(Class), 
       axes_location = svalue(dl),
       tour_type = svalue(TourType),
-      aps = svalue(sl)
+      aps = svalue(sl),
+      cur_proj = cur_proj
     )
-    tour_anim <<- with(tour, tourer(data, tour_path, velocity = aps / 33)) # proj = cur_proj, 
+    
+    if (!identical(prev_var, svalue(Variables))) {
+      cur_proj <<- NULL
+      prev_var <<- svalue(Variables)
+    }
+    
+    tour_anim <<- with(tour, tourer(data, tour_path, proj = cur_proj, velocity = aps / 33))
     TRUE
   }
 
@@ -141,11 +149,6 @@ gui_xy <- function(data = flea, ...) {
     handler = function(ev, ...) {
       qopengl(view) <- svalue(ev$obj) == "Speed"
     })
-  
-  # 
-    
-
-
   vbox[2, 4, anchor = c(0, 1)] <- buttonGroup
   
   # Create canvas for displaying tour
@@ -166,7 +169,7 @@ gui_xy <- function(data = flea, ...) {
 }
 
 
-create_tour <- function(data, var_selected, cat_selected, axes_location, tour_type, aps) {
+create_tour <- function(data, var_selected, cat_selected, axes_location, tour_type, aps, cur_proj) {
   if (length(var_selected) < 3) {
     gmessage("Please select at least three variables", icon = "warning")
     return()
@@ -190,7 +193,7 @@ create_tour <- function(data, var_selected, cat_selected, axes_location, tour_ty
     "Guided(holes)" = guided_tour(holes), 
     "Guided(cm)" = guided_tour(cm), 
     "Guided(lda_pp)" = guided_tour(lda_pp(data[,cat_selected])),
-    "Local" = local_tour()
+    "Local" = local_tour(cur_proj)
   )
   
   
