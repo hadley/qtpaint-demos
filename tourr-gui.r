@@ -1,10 +1,10 @@
-# olive$region <- factor(olive$region)
-# source("~/Documents/cranvas/demos/tourr-gui.r"); gui_xy()
+# source("~/Documents/cranvas/demos/tourr-gui.r"); gui_xy(olive)
 
 library(qtbase)
 library(qtpaint)
 library(ggplot2, warn.conflicts = FALSE)
 library(tourr, warn.conflicts = FALSE)
+olive$region <- factor(olive$region)
 library(colorspace)
 library(RGtk2)
 library(gWidgets)
@@ -53,13 +53,14 @@ gui_xy <- function(data = flea, ...) {
     cur_proj <<- tour_step$proj
     
     data_proj <<- tour$data %*% tour_step$proj
+    data_proj <<- scale(data_proj, center = TRUE, scale = FALSE)
     qupdate(points)
   }
 
   render_tour <- function(item, painter, exposed) {
     col <- alpha(tour$colour, svalue(sl_alpha))
     size <- svalue(sl_size)
-    if (size == 1) {
+    if (size < 0.5) {
       qdrawPoint(painter, data_proj[, 1], data_proj[,2], stroke = col)      
     } else {
       circle <- qpathCircle(0, 0, size)
@@ -69,14 +70,16 @@ gui_xy <- function(data = flea, ...) {
     
     # Draw axes
     if (!is.null(cur_proj)) {
-      pos <- cur_proj * 2
+      pos <- cur_proj
       labels <- abbreviate(colnames(tour$data))
        
       qstrokeColor(painter) <- "grey50"
       qdrawSegment(painter, 0, 0, pos[, 1], pos[, 2])
       theta <- seq(0, 2 * pi, length = 50)
-      qdrawLine(painter, cos(theta) * 2, sin(theta) * 2)
-      qdrawText(painter, labels, pos[, 1], pos[, 2])
+      qdrawLine(painter, cos(theta), sin(theta))
+      
+      r <- sqrt(rowSums(pos ^ 2))
+      qdrawText(painter, labels[r > 0.1], pos[r > 0.1, 1], pos[r > 0.1, 2])
       
     }
     
@@ -105,7 +108,7 @@ gui_xy <- function(data = flea, ...) {
   # Tour selection column
   vbox[1, 3, anchor=c(-1, 0)] <- "Tour Type"
   tour_types <- c("Grand", "Little", "Guided(holes)", "Guided(cm)", "Guided(lda_pp)", "Local")
-  vbox[2, 3] <- TourType <- gradio(tour_types, handler = update_tour)
+  vbox[2, 3] <- TourType <- gradio(tour_types, handler = update_tour, expand = T)
 
 
   # control aesthetics
@@ -116,23 +119,14 @@ gui_xy <- function(data = flea, ...) {
     gslider(from = 0, to = 5, by = 0.1, value = 1)
   aes_box[2,1, anchor = c(1, -1)] <- "Transparency"
   aes_box[2,2, expand = TRUE] <- sl_alpha <- 
-    gslider(from = 0, to = 1, by = 0.01, value = 1)
+    gslider(from = 0.01, to = 1, by = 0.01, value = 1)
   aes_box[3,1, anchor = c(1, -1)] <- "Size"
   aes_box[3,2, expand = TRUE] <- sl_size <- 
-    gslider(from = 1, to = 8, by = 0.5, value = 2)
+    gslider(from = 0, to = 8, by = 0.5, value = 2)
   
   vbox[5, 1:3] <- aes_box
 
   # buttons control
-  buttonGroup <- ggroup(horizontal = F, cont=vbox)  
-  
-  gbutton("Apply", cont = buttonGroup, handler = function(...) {
-    pause(FALSE)
-    update_tour()
-  })
-  gbutton("Quit",cont=buttonGroup, handler = function(...) {
-    dispose(w)
-  })
   timer <- qtimer(30, step_tour)
   pause <- function(paused) {
     svalue(chk_pause) <- paused
@@ -142,9 +136,11 @@ gui_xy <- function(data = flea, ...) {
       timer$start()
     }
   }
-  chk_pause <- gcheckbox("Pause", cont = buttonGroup,
+  chk_pause <- gcheckbox("Pause",
     handler = function(h, ...) pause(svalue(h$obj)))
-
+  vbox[1, 4] <- chk_pause
+    
+  buttonGroup <- ggroup(horizontal = F, cont=vbox)  
   glabel("Optimise for:", cont = buttonGroup)
   gradio(c("Speed", "Quality"), cont = buttonGroup, 
     handler = function(ev, ...) {
@@ -157,7 +153,7 @@ gui_xy <- function(data = flea, ...) {
   root <- qlayer(scene)
 
   points <- qlayer(root, render_tour)
-  qlimits(points) <- qrect(c(-2, 2), c(-2, 2))
+  qlimits(points) <- qrect(c(-1, 1), c(-1, 1))
   
   update_tour()
   pause(FALSE)
