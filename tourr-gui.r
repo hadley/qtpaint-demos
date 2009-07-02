@@ -50,7 +50,9 @@ gui_xy <- function(data = flea, ...) {
     cur_time <- proc.time()[3]
     delta <<- (cur_time - last_time)
     if (is.null(delta_sm)) delta_sm <<- delta
-    delta_sm <<- delta_sm * 0.9 + delta * 0.1
+    # Should pick smoothing constant (alpha) so that an average is basically
+    # over the previous one or two seconds
+    delta_sm <<- delta_sm * 0.95 + delta * 0.05
     last_time <<- cur_time
 
     tour_step <- tour_anim$step2(svalue(sl) * delta)
@@ -79,7 +81,7 @@ gui_xy <- function(data = flea, ...) {
     
     if (!is.null(delta)) {
       qstrokeColor(painter) <- "black"
-      qdrawText(painter, round(1 / delta_sm), 1, 1, "right", "top")      
+      qdrawText(painter, sprintf("%.1f", 1 / delta_sm), 1, 1, "right", "top")      
     }
     
     # Draw axes
@@ -94,13 +96,12 @@ gui_xy <- function(data = flea, ...) {
       
       r <- sqrt(rowSums(pos ^ 2))
       qdrawText(painter, labels[r > 0.1], pos[r > 0.1, 1], pos[r > 0.1, 2])
-      
     }
     
   }
   
   # ==================Controls==========================
-  w <- gwindow("2D Tour plot example", visible = FALSE, 
+  w <- gwindow("XY tour", visible = FALSE, 
     handler = function(...) {
       pause(TRUE)
       qclose(view)
@@ -117,12 +118,12 @@ gui_xy <- function(data = flea, ...) {
   add(class_box, Class <- gtable(c("None", names(data)[!num]), 
     multiple = TRUE), expand = TRUE)
   addhandlerclicked(Class, update_tour)
-  vbox[5, 4, expand = TRUE] <- class_box
+  vbox[5, 3, expand = TRUE] <- class_box
   
   # Tour selection column
-  vbox[1, 3, anchor=c(-1, 0)] <- "Tour Type"
+  vbox[1, 2, anchor=c(-1, 0)] <- "Tour Type"
   tour_types <- c("Grand", "Little", "Guided(holes)", "Guided(cm)", "Guided(lda_pp)", "Local")
-  vbox[2, 3] <- TourType <- gradio(tour_types, handler = update_tour, expand = T)
+  vbox[2, 2] <- TourType <- gradio(tour_types, handler = update_tour, expand = T)
 
 
   # control aesthetics
@@ -138,7 +139,7 @@ gui_xy <- function(data = flea, ...) {
   aes_box[3,2, expand = TRUE] <- sl_size <- 
     gslider(from = 0, to = 8, by = 0.5, value = 2)
   
-  vbox[5, 1:3] <- aes_box
+  vbox[5, 1:2] <- aes_box
 
   # buttons control
   timer <- qtimer(30, step_tour)
@@ -152,7 +153,7 @@ gui_xy <- function(data = flea, ...) {
   }
   chk_pause <- gcheckbox("Pause",
     handler = function(h, ...) pause(svalue(h$obj)))
-  vbox[1, 4] <- chk_pause
+  vbox[1, 3] <- chk_pause
     
   buttonGroup <- ggroup(horizontal = F, cont=vbox)  
   glabel("Optimise for:", cont = buttonGroup)
@@ -160,7 +161,7 @@ gui_xy <- function(data = flea, ...) {
     handler = function(ev, ...) {
       qopengl(view) <- svalue(ev$obj) == "Speed"
     })
-  vbox[2, 4, anchor = c(0, 1)] <- buttonGroup
+  vbox[2, 3, anchor = c(0, 1)] <- buttonGroup
   
   # Create canvas for displaying tour
   scene <- qgraphicsScene()
