@@ -158,6 +158,7 @@ gui_xy <- function(data = flea, ...) {
   root <- qlayer(scene)
 
   points <- qlayer(root, render_tour)
+  qcacheMode(points) <- "none"
   qlimits(points) <- qrect(c(-1, 1), c(-1, 1))
   
   update_tour()
