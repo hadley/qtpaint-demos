@@ -37,6 +37,8 @@ gui_xy <- function(data = flea, ...) {
 
   data_proj <- NULL
   cur_proj <- NULL
+  delta <- NULL
+  delta_sm <- NULL
   last_time <- proc.time()[3]
   step_tour <- function(...) {
     # if there's no tour, don't draw anything
@@ -46,7 +48,9 @@ gui_xy <- function(data = flea, ...) {
     }
     
     cur_time <- proc.time()[3]
-    delta <- (cur_time - last_time)
+    delta <<- (cur_time - last_time)
+    if (is.null(delta_sm)) delta_sm <<- delta
+    delta_sm <<- delta_sm * 0.9 + delta * 0.1
     last_time <<- cur_time
 
     tour_step <- tour_anim$step2(svalue(sl) * delta)
@@ -71,6 +75,11 @@ gui_xy <- function(data = flea, ...) {
       circle <- qpathCircle(0, 0, size)
       qstrokeColor(painter) <- NA
       qdrawGlyph(painter, circle, data_proj[, 1], data_proj[,2], fill = col)
+    }
+    
+    if (!is.null(delta)) {
+      qstrokeColor(painter) <- "black"
+      qdrawText(painter, round(1 / delta_sm), 1, 1, "right", "top")      
     }
     
     # Draw axes
