@@ -37,14 +37,19 @@ gui_xy <- function(data = flea, ...) {
 
   data_proj <- NULL
   cur_proj <- NULL
+  last_time <- proc.time()[3]
   step_tour <- function(...) {
     # if there's no tour, don't draw anything
     if (is.null(tour)) {
       pause(TRUE)
       return()
     }
+    
+    cur_time <- proc.time()[3]
+    delta <- (cur_time - last_time)
+    last_time <<- cur_time
 
-    tour_step <- tour_anim$step2(svalue(sl) / 33)
+    tour_step <- tour_anim$step2(svalue(sl) * delta)
     if (is.null(tour_step$proj)) {
       pause(TRUE)
       return()
@@ -142,7 +147,7 @@ gui_xy <- function(data = flea, ...) {
     
   buttonGroup <- ggroup(horizontal = F, cont=vbox)  
   glabel("Optimise for:", cont = buttonGroup)
-  gradio(c("Speed", "Quality"), cont = buttonGroup, 
+  gradio(c("Quality", "Speed"), cont = buttonGroup, 
     handler = function(ev, ...) {
       qopengl(view) <- svalue(ev$obj) == "Speed"
     })
@@ -159,7 +164,7 @@ gui_xy <- function(data = flea, ...) {
   pause(FALSE)
   visible(w) <- TRUE
 
-  view <- qplotView(scene = scene, opengl = T)
+  view <- qplotView(scene = scene, opengl = FALSE)
   print(view)
   
   invisible()
