@@ -1,4 +1,6 @@
 # source("~/Documents/cranvas/demos/pixbin-zoomer.r", chdir=T)
+source("binning.r")
+
 library(qtpaint)
 library(reshape)
 library(ash)
@@ -6,10 +8,9 @@ library(ash)
 source("limits.r")
 if (!exists("geo")) {
   load("geo.rdata")  
+  df <- data.frame(y = geo$lat * 100, x = geo$long * 100)
+  df <- df[complete.cases(df), ]
 }
-df <- data.frame(y = geo$lat * 100, x = geo$long * 100)
-df <- df[complete.cases(df), ]
-
 
 "dim.QViz::RLayer" <- function(item) {
   qboundingRect(qtpaint:::qpaintingView(item))[2, ]
@@ -28,15 +29,8 @@ scatterplot <- function(layer, painter, exposed) {
   coords <- pix_to_data(cbind(binned$X1, binned$X2), layer)
   
   col <- grey(scale01(-log(binned$value)))
+  qantialias(painter) <- FALSE
   qdrawPoint(painter, coords[, 1], coords[, 2], stroke = col)
-}
-
-pixbin2 <- function(x, y, n) {
-  mat <- cbind(x, y)
-  mat <- mat[complete.cases(mat), ]
-  rng <- rbind(range(mat[ ,1]), range(mat[, 2]))
-
-  melt(bin2(mat, rng, n)$nc)
 }
 
 zoom <- function(ev) {
@@ -57,5 +51,5 @@ qlimits(points) <- qrect(c(0, 1), c(0, 1))
 
 limits <- new_limits(df$x, df$y)
 
-view <- qplotView(scene = scene)
+view <- qplotView(scene = scene, opengl = FALSE)
 print(view)
