@@ -83,21 +83,21 @@ gui_xy <- function(data = flea, ...) {
       qstrokeColor(painter) <- "black"
       qdrawText(painter, sprintf("%.1f", 1 / delta_sm), 1, 1, "right", "top")      
     }
+  }
+  
+  render_axes  <- function(item, painter, exposed) {
+    if (is.null(cur_proj)) return()
+
+    pos <- cur_proj
+    labels <- abbreviate(colnames(tour$data))
+     
+    qstrokeColor(painter) <- "grey50"
+    qdrawSegment(painter, 0, 0, pos[, 1], pos[, 2])
+    theta <- seq(0, 2 * pi, length = 50)
+    qdrawLine(painter, cos(theta), sin(theta))
     
-    # Draw axes
-    if (!is.null(cur_proj)) {
-      pos <- cur_proj
-      labels <- abbreviate(colnames(tour$data))
-       
-      qstrokeColor(painter) <- "grey50"
-      qdrawSegment(painter, 0, 0, pos[, 1], pos[, 2])
-      theta <- seq(0, 2 * pi, length = 50)
-      qdrawLine(painter, cos(theta), sin(theta))
-      
-      r <- sqrt(rowSums(pos ^ 2))
-      qdrawText(painter, labels[r > 0.1], pos[r > 0.1, 1], pos[r > 0.1, 2])
-    }
-    
+    r <- sqrt(rowSums(pos ^ 2))
+    qdrawText(painter, labels[r > 0.1], pos[r > 0.1, 1], pos[r > 0.1, 2])
   }
   
   # ==================Controls==========================
@@ -168,8 +168,11 @@ gui_xy <- function(data = flea, ...) {
   root <- qlayer(scene)
 
   points <- qlayer(root, render_tour)
+  axes <- qlayer(root, render_axes)
   qcacheMode(points) <- "none"
+  qcacheMode(axes) <- "none"
   qlimits(points) <- qrect(c(-1, 1), c(-1, 1))
+  qlimits(axes) <- qrect(c(-1, 1), c(-1, 1))
   
   update_tour()
   pause(FALSE)
