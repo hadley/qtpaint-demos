@@ -2,7 +2,7 @@
 library(qtpaint)
 library(ggplot2)
 
-n <- 50000
+n <- 1e6
 df <- data.frame(x = runif(n), y = runif(n))
 
 bbase <- c(0,0)
@@ -21,7 +21,7 @@ view_size <- function(item) {
 draw_points <- function(item, painter, exposed) {
   circle <- qpathCircle(0, 0, min(view_size(item)) / 200)
   qstrokeColor(painter) <- NA
-    
+  
   qfillColor(painter) <- alpha("black", 1/10)
   qdrawGlyph(painter, circle, df[, 1], df[, 2])
 }
@@ -34,12 +34,12 @@ draw_brush <- function(item, painter, exposed) {
   qdrawRect(painter, bbase[1], bbase[2], bbase[1]+w, bbase[2]-h)
 
   # Draw points under the brush
-  circle <- qpathCircle(0, 0, min(view_size(item)) / 200)
-  qfillColor(painter) <- alpha("red", 1/5)
-  qstrokeColor(painter) <- NA
-
-  pt_underbrush <- underbrush(df, bbase)             
-  qdrawGlyph(painter, circle, df[pt_underbrush, 1], df[pt_underbrush,2])
+  # circle <- qpathCircle(0, 0, min(view_size(item)) / 200)
+  # qfillColor(painter) <- alpha("red", 1/100)
+  # qstrokeColor(painter) <- NA
+  # 
+  # pt_underbrush <- underbrush(df, bbase)             
+  # qdrawGlyph(painter, circle, df[pt_underbrush, 1], df[pt_underbrush,2])
 }  
 
 moveBrush <- function(event) {
