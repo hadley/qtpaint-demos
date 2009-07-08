@@ -2,12 +2,12 @@
 library(qtpaint)
 library(ggplot2)
 
-n <- 5000
-df <- data.frame(x = rnorm(n), y = rnorm(n))
+n <- 50000
+df <- data.frame(x = runif(n), y = runif(n))
 
 bbase <- c(0,0)
-h <- 0.5
-w <- 0.5
+h <- 0.2
+w <- 0.2
 
 underbrush <- function(df, bbrush) {
    df[,1] >= bbrush[1] & df[,1] <= bbrush[1] + w &
@@ -18,24 +18,24 @@ view_size <- function(item) {
   qboundingRect(qtpaint:::qpaintingView(item))[2, ]
 }
 
-scatterplot <- function(item, painter, exposed) {
-  circle <- qpathCircle(0, 0, min(view_size(item)) / 100)
+draw_points <- function(item, painter, exposed) {
+  circle <- qpathCircle(0, 0, min(view_size(item)) / 200)
   qstrokeColor(painter) <- NA
     
-  qfillColor(painter) <- alpha("red", 1/10)
+  qfillColor(painter) <- alpha("black", 1/10)
   qdrawGlyph(painter, circle, df[, 1], df[, 2])
 }
 
-brushrect <- function(item, painter, exposed) {
-  # Draw a brush
-  qfillColor(painter) <- NA
-  qstrokeColor(painter) <- "darkblue"
-  qlineWidth(painter) <- 3
+draw_brush <- function(item, painter, exposed) {
+  # Draw a brush (with white background)
+  qfillColor(painter) <- "white"
+  qstrokeColor(painter) <- "black"
+  qlineWidth(painter) <- 2
   qdrawRect(painter, bbase[1], bbase[2], bbase[1]+w, bbase[2]-h)
 
   # Draw points under the brush
-  circle <- qpathCircle(0, 0, min(view_size(item)) / 100)
-  qfillColor(painter) <- "blue"
+  circle <- qpathCircle(0, 0, min(view_size(item)) / 200)
+  qfillColor(painter) <- alpha("red", 1/5)
   qstrokeColor(painter) <- NA
 
   pt_underbrush <- underbrush(df, bbase)             
@@ -73,18 +73,21 @@ end_drag <- function(event) {
 }
 
 
+if (exists("view")) qclose(view)
+
 scene <- qgraphicsScene()
 root <- qlayer(scene)
 
 view <- qplotView(scene = scene)
 
-points <- qlayer(root, scatterplot, 
+points <- qlayer(root, draw_points, 
   mouseMove = moveBrush, 
   mouseReleaseFun = end_drag, 
   mousePressFun = start_drag)
 qlimits(points) <- qrect(range(df[,1]), range(df[,2]))
 
-brush <- qlayer(root, brushrect)
+brush <- qlayer(root, draw_brush)
+qcacheMode(brush) <- "none"
 qlimits(brush) <- qlimits(points)
 
 print(view)
