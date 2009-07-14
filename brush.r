@@ -2,7 +2,7 @@
 library(qtpaint)
 library(ggplot2)
 
-n <- 1e6
+n <- 1e5
 df <- data.frame(x = runif(n), y = runif(n))
 
 bbase <- c(0,0)
@@ -23,21 +23,21 @@ draw_points <- function(item, painter, exposed) {
   qdrawGlyph(painter, circle, df[, 1], df[, 2])
 }
 
-draw_brushed <- function(item, painter, exposed) {
-  brect <- qrect(bbase[1], bbase[2], bbase[1]+w, bbase[2]-h)
-  under_df <- df[qprimitives(points, brect),]
-  circle <- qpathCircle(0, 0, min(view_size(item)) / 200)
-  qstrokeColor(painter) <- NA
-  qfillColor(painter) <- bcolor
-  qdrawGlyph(painter, circle, under_df[,1], under_df[,2])
-}
-
 draw_brush <- function(item, painter, exposed) {
   qfillColor(painter) <- "white"
   qstrokeColor(painter) <- bcolor
   qlineWidth(painter) <- 2
   qdrawRect(painter, bbase[1], bbase[2], bbase[1]+w, bbase[2]-h)
 }  
+
+draw_brushed <- function(item, painter, exposed) {
+  brect <- qrect(bbase[1], bbase[2], bbase[1]+w, bbase[2]-h)
+  under_df <- df[qprimitives(points, brect),]
+  circle <- qpathCircle(0, 0, min(view_size(item)) / 200)
+  qstrokeColor(painter) <- NA
+  qfillColor(painter) <- alpha(bcolor, 1/10)
+  qdrawGlyph(painter, circle, under_df[,1], under_df[,2])
+}
 
 moveBrush <- function(event) {
   if (!is.null(drag_start)) {
@@ -83,12 +83,12 @@ points <- qlayer(root, draw_points,
   mousePressFun = start_drag)
 qlimits(points) <- qrect(range(df[,1]), range(df[,2]))
 
-brushed <- qlayer(root, draw_brushed)
-qcacheMode(brushed) <- "none"
-qlimits(brushed) <- qlimits(points)
-
 brush <- qlayer(root, draw_brush)
 qcacheMode(brush) <- "none"
 qlimits(brush) <- qlimits(points)
+
+brushed <- qlayer(root, draw_brushed)
+qcacheMode(brushed) <- "none"
+qlimits(brushed) <- qlimits(points)
 
 print(view)
