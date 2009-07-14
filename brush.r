@@ -9,10 +9,7 @@ bbase <- c(0,0)
 h <- 0.2
 w <- 0.2
 
-underbrush <- function(df, bbrush) {
-   df[,1] >= bbrush[1] & df[,1] <= bbrush[1] + w &
-    df[,2] <= bbrush[2] & df[,2] >= bbrush[2] - h
-}
+bcolor <- "red"
 
 view_size <- function(item) {
   qboundingRect(qtpaint:::qpaintingView(item))[2, ]
@@ -26,20 +23,20 @@ draw_points <- function(item, painter, exposed) {
   qdrawGlyph(painter, circle, df[, 1], df[, 2])
 }
 
+draw_brushed <- function(item, painter, exposed) {
+  brect <- qrect(bbase[1], bbase[2], bbase[1]+w, bbase[2]-h)
+  under_df <- df[qprimitives(points, brect),]
+  circle <- qpathCircle(0, 0, min(view_size(item)) / 200)
+  qstrokeColor(painter) <- NA
+  qfillColor(painter) <- bcolor
+  qdrawGlyph(painter, circle, under_df[,1], under_df[,2])
+}
+
 draw_brush <- function(item, painter, exposed) {
-  # Draw a brush (with white background)
   qfillColor(painter) <- "white"
-  qstrokeColor(painter) <- "black"
+  qstrokeColor(painter) <- bcolor
   qlineWidth(painter) <- 2
   qdrawRect(painter, bbase[1], bbase[2], bbase[1]+w, bbase[2]-h)
-
-  # Draw points under the brush
-  # circle <- qpathCircle(0, 0, min(view_size(item)) / 200)
-  # qfillColor(painter) <- alpha("red", 1/100)
-  # qstrokeColor(painter) <- NA
-  # 
-  # pt_underbrush <- underbrush(df, bbase)             
-  # qdrawGlyph(painter, circle, df[pt_underbrush, 1], df[pt_underbrush,2])
 }  
 
 moveBrush <- function(event) {
@@ -85,6 +82,10 @@ points <- qlayer(root, draw_points,
   mouseReleaseFun = end_drag, 
   mousePressFun = start_drag)
 qlimits(points) <- qrect(range(df[,1]), range(df[,2]))
+
+brushed <- qlayer(root, draw_brushed)
+qcacheMode(brushed) <- "none"
+qlimits(brushed) <- qlimits(points)
 
 brush <- qlayer(root, draw_brush)
 qcacheMode(brush) <- "none"
