@@ -1,6 +1,6 @@
-# l(qtpaint)
 # source("~/Documents/cranvas/demos/random-walk.r")
 library(qtpaint)
+library(qtbase)
 library(ggplot2)
 
 n <- 50000
@@ -30,10 +30,9 @@ view <- qplotView(scene = scene)
 print(view)
 
 
-print(system.time({
-  for(i in 1:10) {
-    df$X <- df$X + runif(nrow(df), -0.01, 0.01)
-    qupdate(scene)
-    Sys.sleep(1 / 66)
-  }
-}))
+timer <- qtimer(1/30, function() {
+  df$X <<- df$X + runif(nrow(df), -0.01, 0.01)
+  qupdate(scene)  
+})
+timer$start()
+# timer$stop()
