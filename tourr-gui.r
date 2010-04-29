@@ -31,7 +31,7 @@ gui_xy <- function(data = flea, ...) {
     )
     
     
-    tour_anim <<- with(tour, tourer(data, tour_path, proj = cur_proj, velocity = aps / 33))
+    tour_anim <<- with(tour, new_tour(data, tour_path, cur_proj))
     TRUE
   }
 
@@ -55,7 +55,7 @@ gui_xy <- function(data = flea, ...) {
     delta_sm <<- delta_sm * 0.95 + delta * 0.05
     last_time <<- cur_time
 
-    tour_step <- tour_anim$step2(svalue(sl) * delta)
+    tour_step <- tour_anim(svalue(sl) * delta)
     if (is.null(tour_step$proj)) {
       pause(TRUE)
       return()
@@ -74,7 +74,7 @@ gui_xy <- function(data = flea, ...) {
     if (size < 0.5) {
       qdrawPoint(painter, data_proj[, 1], data_proj[,2], stroke = col)      
     } else {
-      circle <- qpathCircle(0, 0, size)
+      circle <- qglyphCircle(size)
       qstrokeColor(painter) <- NA
       qdrawGlyph(painter, circle, data_proj[, 1], data_proj[,2], fill = col)
     }
@@ -104,7 +104,7 @@ gui_xy <- function(data = flea, ...) {
   w <- gwindow("XY tour", visible = FALSE, 
     handler = function(...) {
       pause(TRUE)
-      qclose(view)
+      view$close()
     })
   vbox <- glayout(cont = w)
 
@@ -159,20 +159,20 @@ gui_xy <- function(data = flea, ...) {
   glabel("Optimise for:", cont = buttonGroup)
   gradio(c("Quality", "Speed"), cont = buttonGroup, 
     handler = function(ev, ...) {
-      qopengl(view) <- svalue(ev$obj) == "Speed"
+      view$setOpenGL(svalue(ev$obj) == "Speed")
     })
   vbox[2, 3, anchor = c(0, 1)] <- buttonGroup
   
   # Create canvas for displaying tour
-  scene <- qgraphicsScene()
+  scene <- qscene()
   root <- qlayer(scene)
 
   points <- qlayer(root, render_tour)
   axes <- qlayer(root, render_axes)
-  qcacheMode(points) <- "none"
-  qcacheMode(axes) <- "none"
-  qlimits(points) <- qrect(c(-1, 1), c(-1, 1))
-  qlimits(axes) <- qrect(c(-1, 1), c(-1, 1))
+  points$setCacheMode(Qt$QGraphicsItem$NoCache)
+  axes$setCacheMode(Qt$QGraphicsItem$NoCache)
+  points$setLimits(qrect(c(-1, 1), c(-1, 1)))
+  axes$setLimits(qrect(c(-1, 1), c(-1, 1)))
   
   update_tour()
   pause(FALSE)
